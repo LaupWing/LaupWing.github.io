@@ -1,51 +1,110 @@
-const url = 'http://gateway.marvel.com/v1/public/characters?ts=1&apikey=d7a95ef221339f97365a4e271ede5efb&hash=e3e887639aa48b1e7e476988215f50ba&limit=100&offset=0'
+'use strict'
 const app = document.querySelector('#root');
 const container = document.createElement('div');
 container.setAttribute('class', 'container');
+const array = []
+const url = 'https://pokeapi.co/api/v2/pokemon'
 app.appendChild(container);
 
-const marvelRequest = (function(){
-    const getData = new Promise(function(resolve, reject){
-        const request = new XMLHttpRequest();
-        request.open("GET", url, true)
-        request.onload = function(){
-            if(this.status >= 200 && this.status <400 ){
-                console.log("status is ok")
-                const data = JSON.parse(this.responseText)
-                resolve(data)
-            }else{
-                console("sorry couldn't keep my promise")
-                reject(error)
-            }
-        }
-        request.send()
-    })
-    getData.then((data)=>{
-        console.log(data)
-        makeElements(data.data.results)
-    })
-}())
+getData()
 
+function getData(){
+    fetch(url)
+    .then(data=>{
+        return data.json()
+    })
+    .then(res=>{
+        const pokemonUrlArray = []
+        res.results.forEach((x)=>{
+            pokemonUrlArray.push(x.url)
+        })
+        return pokemonUrlArray
+    })
+    .then(pokemons=>{
+        // const array = []
+        // pokemons.forEach((pokemon, index)=>{
+        //     fetch(pokemon)
+        //     .then(data=>{
+        //         return data.json()
+        //     })
+        //     .then(pokemonDetail=>{
+        //         console.log(pokemonDetail)
+        //         array.push(makeObject(pokemonDetail))
+        //         if(index+1===pokemons.length){
+        //             setTimeout(()=>{
+        //                 array.sort(sortData)
+        //                 makeElements(array)
+        //                 // console.log(array)
+        //             },0)
+        //         }
+        //     })
+        // })
+        const requests = pokemons.map(pokemon=>{
+            return fetch(pokemon);
+        });
+
+        //> requests = [Promise<data>, Promise<data>, ...]
+        Promise.all(requests).then(fulfilledRequests => {
+            return fulfilledRequests.map(dataBlob => {
+                return dataBlob.json();
+            });
+        }).then(jsons=>{
+            //> jsons = [Promise<{..}>, Promise<{..}>, ...]
+            Promise.all(jsons).then(jsonArray => {
+                console.log(jsonArray)
+                jsonArray.forEach((i)=>{
+                    array.push(makeObject(i))
+                })
+                makeElements(array)
+                // let array2 = jsonArray.map((pokemonDetail)=>{
+                //     return makeObject(pokemonDetail)
+                // })
+                console.log(array);
+            });
+        })
+    })         
+}
+
+function sortData(a,b){
+    return a.id - b.id
+}
+
+function makeObject(item){
+    return {
+        name: item.name,
+        id: item.id,
+        defaultBack: item.sprites.back_default,
+        defaultFront: item.sprites.front_default,
+        shinyFront: item.sprites.front_shiny,
+        shinyBack: item.sprites.back_shiny,
+    }
+}
 
 function makeElements(a){
-    a.forEach((x)=>{
-        if(x.thumbnail.path === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available" || x.thumbnail.path === "http://i.annihil.us/u/prod/marvel/i/mg/f/60/4c002e0305708"){
-            return
-        }else{
-            var newElement = `
-                <div class="character ${x.id} flexCenter">
-                    <h2>${x.name}</h2>
-                    <img class="thumbnail" src="${x.thumbnail.path}/portrait_fantastic.${x.thumbnail.extension}"></img>
+    a.forEach((x,index)=>{
+        var newElement = `
+            <div class="pokemon ${x.id} flexCenter">
+                <h2>${x.name}</h2>
+                <img class="mainImage" src="${x.defaultFront}"></img>
+                <div class="allImages">
+                    <img src="${x.defaultFront}">
+                    <img src="${x.defaultBack}">
+                    <img src="${x.shinyFront}">
+                    <img src="${x.shinyBack}">
                 </div>
-                `
-            container.insertAdjacentHTML( 'beforeend', newElement )
-        }
+            </div>
+            `
+        container.insertAdjacentHTML( 'beforeend', newElement )
     })
-    container.querySelectorAll(".character").forEach((i)=>{
-        i.addEventListener("click", function(){
-            console.log(this)
+
+    container.querySelectorAll(".allImages img").forEach((i)=>{
+        i.addEventListener("mouseover", function(event){
+            console.log()
+            this.parentNode.parentNode.querySelector(".mainImage").src = this.src
+        })
+        i.addEventListener("mouseout", function(event){
+            // document.querySelector(".mainImage").src = this.src
         })
     })
 }
 
-// TODO headless pupperteer for searching the missing images
