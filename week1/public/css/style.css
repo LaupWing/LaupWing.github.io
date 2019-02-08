@@ -1,0 +1,49 @@
+body{
+    background: orange;
+}
+
+.container{
+    max-width: 1000px;
+    display: flex;
+    flex-wrap: wrap;
+    margin: auto;
+    /* justify-content: space-between; */
+}
+
+/* Diffrent styles of flex styles */
+.flexCenter{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+.flexSpaceAround{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    align-items: center;
+}
+.flexSpaceBetween{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pokemon{
+    width: 300px;
+    background: lime;
+    height: 300px;
+    margin: 10px;
+}
+img.mainImg{
+    width: 150px;
+}
+.allImages > img{
+    width: 50px;
+    cursor: pointer;
+}
+h2{
+    text-align: center;
+    width: 100%;
+}
