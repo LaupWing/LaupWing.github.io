@@ -21,24 +21,6 @@ function getData(){
         return pokemonUrlArray
     })
     .then(pokemons=>{
-        // const array = []
-        // pokemons.forEach((pokemon, index)=>{
-        //     fetch(pokemon)
-        //     .then(data=>{
-        //         return data.json()
-        //     })
-        //     .then(pokemonDetail=>{
-        //         console.log(pokemonDetail)
-        //         array.push(makeObject(pokemonDetail))
-        //         if(index+1===pokemons.length){
-        //             setTimeout(()=>{
-        //                 array.sort(sortData)
-        //                 makeElements(array)
-        //                 // console.log(array)
-        //             },0)
-        //         }
-        //     })
-        // })
         const requests = pokemons.map(pokemon=>{
             return fetch(pokemon);
         });
